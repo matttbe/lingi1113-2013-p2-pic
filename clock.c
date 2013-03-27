@@ -137,7 +137,7 @@ void high_isr (void) interrupt 1
 				iState = 0;
 				fAlarm = 3600 * fHour + 60 * fMinutes + fSeconds;
 
-				DisplayString (0, "THE fTimeMACHINE");
+				DisplayString (0, "THE TIME MACHINE");
 				DisplayfTime (3600 * fHour + 60 * fMinutes + fSeconds);
 				bBool = 0;
 			}
@@ -354,15 +354,15 @@ void delay_1ms (void)
 {
 	TMR0H = (0x10000 - EXEC_FREQ / 1000) >> 8;
 	TMR0L = (0x10000 - EXEC_FREQ / 1000) & 0xff;
-	T0CONbits.TMR0ON = 0; // disable fTimer0
-	T0CONbits.T08BIT = 0; // use fTimer0 16-bit counter
-	T0CONbits.T0CS   = 0; // use fTimer0 instruction cycle clock
-	T0CONbits.PSA    = 1; // disable fTimer0 prescaler
-	INTCONbits.T0IF  = 0; // clear fTimer0 overflow bit
-	T0CONbits.TMR0ON = 1; // enable fTimer0
-	while (! INTCONbits.T0IF) {} // wait for fTimer0 overflow
-	INTCONbits.T0IF  = 0; // clear fTimer0 overflow bit
-	T0CONbits.TMR0ON = 0; // disable fTimer0
+	T0CONbits.TMR0ON = 0; // disable timer
+	T0CONbits.T08BIT = 0; // use timer 16-bit counter
+	T0CONbits.T0CS   = 0; // use timer instruction cycle clock
+	T0CONbits.PSA    = 1; // disable timer prescaler
+	INTCONbits.T0IF  = 0; // clear timer overflow bit
+	T0CONbits.TMR0ON = 1; // enable timer
+	while (! INTCONbits.T0IF) {} // wait for timer overflow
+	INTCONbits.T0IF  = 0; // clear timer overflow bit
+	T0CONbits.TMR0ON = 0; // disable timer
 }
 
 void delay_ms(unsigned int ms)
