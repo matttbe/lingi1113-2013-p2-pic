@@ -1,3 +1,6 @@
 *~
 *.o
 *.hex
+*.asm
+*.lst
+*.cod
