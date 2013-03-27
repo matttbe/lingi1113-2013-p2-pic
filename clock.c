@@ -22,204 +22,220 @@ void DisplayString(BYTE pos, char* text);
 void DisplayWORD(BYTE pos, WORD w);
 void DisplayIPValue(DWORD IPdw);
 size_t strlcpy(char *dst, const char *src, size_t siz);
- void delay_1ms(void);
+void delay_1ms(void);
 void delay_ms(unsigned int ms);
 void DisplayChar(BYTE pos, char text);
-void DisplayTime(long t);
+void DisplayfTime(long t);
 
 
-int State = 0;
-long Time = 0; long alarm = 0;
-long heureT = 0; long minT = 0; long secT = 0; // Réglage de l'heure de l'horloge et de l'alarme
-int bool = 0; // Assure qu'on entre dans la routine que d'un seul état par interruption
-int i;  int RuningBip = 0;
+int iState = 0;
+long fTime = 0, fAlarm = 0;
+long fHour = 0, fMinutes = 0, fSeconds = 0; // Réglage de l'heure de l'horloge et de l'fAlarme
+int bBool = 0; // Assure qu'on entre dans la routine que d'un seul état par interruption
+int i, iBip = 0;
 
 
 void high_isr (void) interrupt 1
 {
-  bool = 1;
-  if(INTCON3bits.INT1IF  == 1 || INTCON3bits.INT3IF  == 1)
-    {
-      if(BUTTON0_IO) { // Bouton pour régler l'heure
-	if(State == 0 && bool== 1) { // Etat Horloge
-	  bool = 0;
+	bBool = 1;
+	if(INTCON3bits.INT1IF == 1 || INTCON3bits.INT3IF == 1)
+	{
+		if(BUTTON0_IO)
+		{ // Bouton pour régler l'heure
+			if(iState == 0 && bBool== 1)
+			{ // Etat Horloge
+				bBool = 0;
+			}
+
+			if((iState == 1 || iState == 4) && bBool== 1)
+			{ // Reglage heure Horloge
+				fHour = (fHour + 1) % 24;
+				DisplayfTime (3600 * fHour + 60 * fMinutes + fSeconds);
+				bBool = 0;
+			}
+
+			if((iState == 2  || iState == 5) && bBool== 1)
+			{ // Reglage minutes Horloge
+				fMinutes = (fMinutes + 1) % 60 ;
+				DisplayfTime (3600 * fHour + 60 * fMinutes + fSeconds);
+				bBool = 0;
+			}
+
+			if((iState == 3  || iState == 6) && bBool== 1)
+			{ // Reglage secondes Horloge
+				fSeconds = (fSeconds + 1) % 60;
+				DisplayfTime (3600 * fHour + 60 * fMinutes + fSeconds);
+				bBool = 0;
+			}
+
+
+			INTCON3bits.INT1IF = 0;   //clear INT1 flag
+			INTCON3bits.INT3IF = 0; 
+			INTCONbits.T0IF=0;
+		}
+
+		if(BUTTON1_IO)
+		{ // Bouton pour passer à l'état suivant
+			if(iState == 0  && bBool == 1)
+			{ 
+				iState = 1;
+				fHour = fTime / 3600;
+				fMinutes = (fTime / 60) % 60;
+				fSeconds = fTime % 60;
+				DisplayString (0, "SetClock : hours");
+				DisplayfTime (3600 * fHour + 60 * fMinutes + fSeconds);
+				bBool = 0;
+			}
+
+			if(iState == 1 && bBool == 1)
+			{
+				iState = 2;
+				DisplayString (0, "SetClock : min");
+				DisplayfTime (3600 * fHour + 60 * fMinutes + fSeconds);
+				bBool = 0;
+			}
+
+			if(iState == 2 && bBool == 1)
+			{
+				iState = 3;
+				DisplayString (0, "SetClock : sec");
+				DisplayfTime (3600 * fHour + 60 * fMinutes + fSeconds);
+				bBool = 0;
+			}
+
+			if(iState == 3 && bBool == 1)
+			{
+				iState = 4;
+				fTime = 3600 * fHour + 60 * fMinutes + fSeconds;
+				fHour = fAlarm / 3600;
+				fMinutes = (fAlarm / 60) % 60;
+				fSeconds = fAlarm % 60;
+
+				DisplayString (0, "SetfAlarm : hours");
+				DisplayfTime (3600 * fHour + 60 * fMinutes + fSeconds);
+				bBool = 0;
+			}
+
+			if(iState == 4 && bBool== 1)
+			{
+				iState = 5;
+				DisplayString (0, "SetfAlarm : min");
+				DisplayfTime (3600 * fHour + 60 * fMinutes + fSeconds);
+				bBool = 0;
+			}
+
+			if(iState == 5 && bBool== 1)
+			{
+				iState = 6;
+				DisplayString (0, "SetfAlarm : sec");
+				DisplayfTime (3600 * fHour + 60 * fMinutes + fSeconds);
+				bBool = 0;
+			}
+
+			if(iState == 6 && bBool== 1)
+			{
+				iState = 0;
+				fAlarm = 3600 * fHour + 60 * fMinutes + fSeconds;
+
+				DisplayString (0, "THE fTimeMACHINE");
+				DisplayfTime (3600 * fHour + 60 * fMinutes + fSeconds);
+				bBool = 0;
+			}
+		}
+
+		INTCON3bits.INT1IF  = 0;  
+		INTCON3bits.INT3IF  = 0; 
+		INTCONbits.T0IF     = 0; 
 	}
-
-	if((State == 1 || State == 4) && bool== 1) { // Reglage heure Horloge
-	  
-	  heureT = (heureT+1)%24;
-	  DisplayTime(3600*heureT+60*minT+secT);
-	  bool = 0;
-	}
-
-	if((State == 2  || State == 5) && bool== 1) { // Reglage minutes Horloge
-
-	  minT = (minT+1)%60 ;
-	  DisplayTime(3600*heureT+60*minT+secT);
-	  bool = 0;
-	}
-
-	if((State == 3  || State == 6)&& bool== 1) { // Reglage secondes Horloge
-	  secT = (secT+1)%60 ;
-	  DisplayTime(3600*heureT+60*minT+secT);
-	  bool = 0;
-	}
-
-
-	INTCON3bits.INT1IF  = 0;   //clear INT1 flag
-	INTCON3bits.INT3IF  = 0; 
-	INTCONbits.T0IF=0;
-      }
-      if(BUTTON1_IO) { // Bouton pour passer à l'état suivant
-	if(State == 0  && bool== 1) { 
-	  State = 1;
-	  heureT=Time/3600;
-	  minT=(Time/60)%60;
-	  secT=Time%60;
-	  DisplayString(0, "SetClock : hours");
-	  DisplayTime(3600*heureT+60*minT+secT);
-	  bool = 0;
-	}
-
-	if(State == 1 && bool== 1) {
-	  State = 2;
-	  DisplayString(0, "SetClock : min");
-	  DisplayTime(3600*heureT+60*minT+secT);
-	  bool = 0;
-	}
-
-	if(State == 2 && bool== 1) {
-	  State = 3;
-	  DisplayString(0, "SetClock : sec");
-	  DisplayTime(3600*heureT+60*minT+secT);
-	  bool = 0;
-	}
-
-	if(State == 3 && bool== 1) {
-	  State = 4;
-	  Time = 3600*heureT+60*minT+secT;
-	  heureT=alarm/3600;
-	  minT=(alarm/60)%60;
-	  secT=alarm%60;
-
-	  DisplayString(0, "SetAlarm : hours");
-	  DisplayTime(3600*heureT+60*minT+secT);
-	  bool = 0;
-	}
-
-	if(State == 4 && bool== 1) {
-	  State = 5;
-	  DisplayString(0, "SetAlarm : min");
-	  DisplayTime(3600*heureT+60*minT+secT);
-	  bool = 0;
-	}
-
-	if(State == 5 && bool== 1) {
-	  State = 6;
-	  DisplayString(0, "SetAlarm : sec");
-	  DisplayTime(3600*heureT+60*minT+secT);
-	  bool = 0;
-	}
-
-	if(State == 6 && bool== 1) {
-	  State = 0;
-	  alarm = 3600*heureT+60*minT+secT;
-
-	  DisplayString(0, "THE TIMEMACHINE");
-	  DisplayTime(3600*heureT+60*minT+secT);
-	  bool = 0;
-	}
-
-
-      }   
-      INTCON3bits.INT1IF  = 0;  
-      INTCON3bits.INT3IF  = 0; 
-      INTCONbits.T0IF=0; 
-    }
-
 }
 
 
 void main(void)
 {
+	LED0_TRIS = 0; //configure 1st led pin as output (yellow)
 
+	BUTTON0_TRIS = 1; //configure button0 as input
+	BUTTON1_TRIS = 1; //configure button0 as input
 
-  LED0_TRIS = 0; //configure 1st led pin as output (yellow)
+	LED0_IO = 0;
 
-  BUTTON0_TRIS = 1; //configure button0 as input
-  BUTTON1_TRIS = 1; //configure button0 as input
+	RCONbits.IPEN       = 1;   //enable interrupts priority levels
+	INTCONbits.GIE      = 1;   //enable high priority interrupts
 
-  LED0_IO = 0;
+	INTCON3bits.INT1IP  = 1;   //connect INT1 interrupt (button 2) to high po
+	INTCON2bits.INTEDG1 = 0;   //INT1 interrupts on raising edge
+	INTCON3bits.INT1IE  = 1;   //enable INT1 interrupt (button 2)
+	INTCON3bits.INT1IF  = 0;   //clear INT1 flag
 
-  RCONbits.IPEN      = 1;   //enable interrupts priority levels
-  INTCONbits.GIE     = 1;   //enable high priority interrupts
-
-  INTCON3bits.INT1IP  = 1;   //connect INT1 interrupt (button 2) to high po
-  INTCON2bits.INTEDG1 = 0;   //INT1 interrupts on raising edge
-  INTCON3bits.INT1IE  = 1;   //enable INT1 interrupt (button 2)
-  INTCON3bits.INT1IF  = 0;   //clear INT1 flag
-
-  INTCON2bits.INT3IP  = 1;  // Idem mais pour la 2eme interruption
-  INTCON2bits.INTEDG3 = 0;   
-  INTCON3bits.INT3IE  = 1;   
-  INTCON3bits.INT3IF  = 0;   
+	INTCON2bits.INT3IP  = 1;   // Idem mais pour la 2eme interruption
+	INTCON2bits.INTEDG3 = 0;   
+	INTCON3bits.INT3IE  = 1;   
+	INTCON3bits.INT3IF  = 0;   
 
 
 
-  LCDInit();
-  delay_ms(1000);
+	LCDInit ();
+	delay_ms (1000);
 
-  DisplayString (0,"THE TIMEMACHINE"); //first arg is start position
-  // on 32 positions LCD
+	DisplayString (0, "THE fTimeMACHINE"); //first arg is start position
+	// on 32 positions LCD
 
-  State = 0;
-  
-  while(1){
-    delay_ms(1000);
-    if (State == 0) {
-      Time++;
-      Time = Time%(86400); // Car on incrémente toujours l'heure, il est possible qu'on atteigne une heure > 24:00:00, d'où le modulo
-      if (Time == alarm) { // Heure de l'alarme
-	RuningBip = 30;
-      }
+	iState = 0;
 
-      if(RuningBip > 0) { // On fait cligonter pendant 30 secondes en cas d'alarme
-	LED0_IO ^= 1;
-	RuningBip--;
-      }
-      DisplayTime(Time);
-    }
-  }
+	while(1)
+	{
+		delay_ms (1000);
+		if (iState == 0) {
+			fTime++;
+			fTime = fTime%(86400); // Car on incrémente toujours l'heure, il est possible qu'on atteigne une heure > 24:00:00, d'où le modulo
+		  if (fTime == fAlarm) { // Heure de l'fAlarme
+		iBip = 30;
+		  }
+
+		  if(iBip > 0) { // On fait cligonter pendant 30 secondes en cas d'fAlarme
+		LED0_IO ^= 1;
+		iBip--;
+		  }
+			DisplayfTime(fTime);
+	}
+	}
  
 }
  
-void DisplayTime(long t) { // t est le temps transforme en seconde 3600 * H + 60 * M + S
-	
-	if (t/3600 < 10) {
-		DisplayWORD(16,0);
-		DisplayWORD(17,t/3600);
-	} else {
-		DisplayWORD(16,t/3600);
+void DisplayfTime (long t)
+{ // t est le temps transforme en seconde 3600 * H + 60 * M + S
+	if (t / 3600 < 10)
+	{
+		DisplayWORD (16, 0);
+		DisplayWORD (17, t / 3600);
+	}
+	else
+	{
+		DisplayWORD (16, t / 3600);
 	}
 
-	DisplayChar (18,':');
+	DisplayChar (18, ':');
 
-	if ((t/60)%60 < 10) {
-		DisplayWORD(19,0);
-		DisplayWORD(20,(t/60)%60);
-	} else {
-		DisplayWORD(19,(t/60)%60);
+	if ((t / 60) % 60 < 10)
+	{
+		DisplayWORD (19, 0);
+		DisplayWORD (20, (t / 60) % 60);
+	} else
+	{
+		DisplayWORD (19, (t / 60) % 60);
 	}
 
 	DisplayChar (21, ':');
 
-    if (t%60 < 10) {
-		DisplayWORD(22,0);
-		DisplayWORD(23,t%60);
-	} else {
-		DisplayWORD(22,t%60);
+	if (t % 60 < 10)
+	{
+		DisplayWORD (22, 0);
+		DisplayWORD (23, t % 60);
 	}
-	
+	else
+	{
+		DisplayWORD (22, t % 60);
+	}
 }
 /*************************************************
  Function DisplayWORD:
@@ -231,22 +247,23 @@ void DisplayTime(long t) { // t est le temps transforme en seconde 3600 * H + 60
  __SDCC__ only: for debugging
 *************************************************/
 #if defined(__SDCC__)
-void DisplayWORD(BYTE pos, WORD w) //WORD is a 16 bits unsigned
+void DisplayWORD (BYTE pos, WORD w) //WORD is a 16 bits unsigned
 {
-    BYTE WDigit[6]; //enough for a  number < 65636: 5 digits + \0
-    BYTE j;
-    BYTE LCDPos=0;  //write on first line of LCD
-    unsigned radix=10; //type expected by sdcc's ultoa()
+	BYTE WDigit[6]; //enough for a  number < 65636: 5 digits + \0
+	BYTE j;
+	BYTE LCDPos = 0;  //write on first line of LCD
+	unsigned radix = 10; //type expected by sdcc's ultoa()
 
-    LCDPos=pos;
-    ultoa(w, WDigit, radix);      
-    for(j = 0; j < strlen((char*)WDigit); j++)
-    {
-       LCDText[LCDPos++] = WDigit[j];
-    }
-    if(LCDPos < 32u)
-       LCDText[LCDPos] = 0;
-    LCDUpdate();
+	LCDPos = pos;
+	ultoa (w, WDigit, radix);      
+	for (j = 0; j < strlen ((char*) WDigit); j++)
+	{
+		LCDText[LCDPos++] = WDigit[j];
+	}
+	if (LCDPos < 32u)
+		LCDText[LCDPos] = 0;
+
+	LCDUpdate ();
 }
 /*************************************************
  Function DisplayString: 
@@ -255,11 +272,10 @@ void DisplayWORD(BYTE pos, WORD w) //WORD is a 16 bits unsigned
 *************************************************/
 void DisplayString(BYTE pos, char* text)
 {
-   BYTE l= strlen(text)+1;
-   BYTE max= 32-pos;
-   strlcpy((char*)&LCDText[pos], text,(l<max)?l:max );
-   LCDUpdate();
-
+	BYTE l = strlen (text) + 1;
+	BYTE max = 32 - pos;
+	strlcpy ((char*) &LCDText[pos], text, (l<max) ? l : max);
+	LCDUpdate();
 }
 #endif
 
@@ -328,31 +344,32 @@ size_t strlcpy(char *dst, const char *src, size_t siz)
     return (s - src - 1);       /* count does not include NUL */
 }
 
-void DisplayChar(BYTE pos, char text)
+void DisplayChar (BYTE pos, char text)
 {
-
-   LCDText[pos] = text;
-   LCDUpdate();
-
+	LCDText[pos] = text;
+	LCDUpdate ();
 } 
 
-void delay_1ms(void) {
-	TMR0H=(0x10000-EXEC_FREQ/1000)>>8;
-	TMR0L=(0x10000-EXEC_FREQ/1000)&0xff;
-	T0CONbits.TMR0ON=0; // disable timer0
-	T0CONbits.T08BIT=0; // use timer0 16-bit counter
-	T0CONbits.T0CS=0; // use timer0 instruction cycle clock
-	T0CONbits.PSA=1; // disable timer0 prescaler
-	INTCONbits.T0IF=0; // clear timer0 overflow bit
-	T0CONbits.TMR0ON=1; // enable timer0
-	while (!INTCONbits.T0IF) {} // wait for timer0 overflow
-	INTCONbits.T0IF=0; // clear timer0 overflow bit
-	T0CONbits.TMR0ON=0; // disable timer0
+void delay_1ms (void)
+{
+	TMR0H = (0x10000 - EXEC_FREQ / 1000) >> 8;
+	TMR0L = (0x10000 - EXEC_FREQ / 1000) & 0xff;
+	T0CONbits.TMR0ON = 0; // disable fTimer0
+	T0CONbits.T08BIT = 0; // use fTimer0 16-bit counter
+	T0CONbits.T0CS   = 0; // use fTimer0 instruction cycle clock
+	T0CONbits.PSA    = 1; // disable fTimer0 prescaler
+	INTCONbits.T0IF  = 0; // clear fTimer0 overflow bit
+	T0CONbits.TMR0ON = 1; // enable fTimer0
+	while (! INTCONbits.T0IF) {} // wait for fTimer0 overflow
+	INTCONbits.T0IF  = 0; // clear fTimer0 overflow bit
+	T0CONbits.TMR0ON = 0; // disable fTimer0
 }
 
-void delay_ms(unsigned int ms) {
-	while (ms--) {
-		delay_1ms();
+void delay_ms(unsigned int ms)
+{
+	while (ms--)
+	{
+		delay_1ms ();
 	}
 }
 
