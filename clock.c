@@ -31,6 +31,7 @@ void DisplayfTime (long t);
 int iState = 0;
 long fTime = 0, fAlarm = 0;
 long fHour = 0, fMinutes = 0, fSeconds = 0; // Réglage de l'heure de l'horloge et de l'fAlarme
+int iPrevHour = 0, iPrevMin = 0, iPrevSec = 0;
 int bBool = 0; // Assure qu'on entre dans la routine que d'un seul état par interruption
 int i, iBip = 0;
 
@@ -177,65 +178,61 @@ void main(void)
 	LCDInit ();
 	delay_ms (1000);
 
-	DisplayString (0, "THE fTimeMACHINE"); //first arg is start position
+	DisplayString (0, "THE TIME MACHINE"); //first arg is start position
 	// on 32 positions LCD
+	DisplayString (16, "00:00:00");
 
 	iState = 0;
 
 	while(1)
 	{
 		delay_ms (1000);
-		if (iState == 0) {
+		if (iState == 0)
+		{
 			fTime++;
-			fTime = fTime%(86400); // Car on incrémente toujours l'heure, il est possible qu'on atteigne une heure > 24:00:00, d'où le modulo
-		  if (fTime == fAlarm) { // Heure de l'fAlarme
-		iBip = 30;
-		  }
+			fTime = fTime % 86400; // Car on incrémente toujours l'heure, il est possible qu'on atteigne une heure > 24:00:00, d'où le modulo
+			if (fTime == fAlarm) // Heure de l'fAlarme
+				iBip = 30;
 
-		  if(iBip > 0) { // On fait cligonter pendant 30 secondes en cas d'fAlarme
-		LED0_IO ^= 1;
-		iBip--;
-		  }
+			if(iBip > 0)
+			{ // On fait cligonter pendant 30 secondes en cas d'fAlarme
+				LED0_IO ^= 1;
+				iBip--;
+			}
 			DisplayfTime(fTime);
-	}
+		}
 	}
  
+}
+
+static void display_sub_time (int iNumbers, int iIndex)
+{
+	if (iNumbers < 10)
+	{
+		DisplayWORD (iIndex, 0);
+		DisplayWORD (iIndex + 1, iNumbers);
+	}
+	else
+		DisplayWORD (iIndex, iNumbers);
 }
  
 void DisplayfTime (long t)
 { // t est le temps transforme en seconde 3600 * H + 60 * M + S
-	if (t / 3600 < 10)
-	{
-		DisplayWORD (16, 0);
-		DisplayWORD (17, t / 3600);
-	}
-	else
-	{
-		DisplayWORD (16, t / 3600);
-	}
+	int iHour = t / 3600, iMin = (t / 60) % 60, iSec = t % 60;
 
-	DisplayChar (18, ':');
+	if (iHour != iPrevHour)
+		display_sub_time (iHour, 16);
 
-	if ((t / 60) % 60 < 10)
-	{
-		DisplayWORD (19, 0);
-		DisplayWORD (20, (t / 60) % 60);
-	} else
-	{
-		DisplayWORD (19, (t / 60) % 60);
-	}
+	// DisplayChar (18, ':');
 
-	DisplayChar (21, ':');
 
-	if (t % 60 < 10)
-	{
-		DisplayWORD (22, 0);
-		DisplayWORD (23, t % 60);
-	}
-	else
-	{
-		DisplayWORD (22, t % 60);
-	}
+	if (iMin != iPrevMin)
+		display_sub_time (iMin, 19);
+
+	// DisplayChar (21, ':');
+
+	if (iSec != iPrevSec)
+		display_sub_time (iSec, 22);
 }
 /*************************************************
  Function DisplayWORD:
