@@ -193,35 +193,34 @@ void main(void)
  
 }
  
-void DisplayTime(long t) {
- if (t/3600 < 10) {
-	DisplayWORD(16,0);
-	DisplayWORD(17,t/3600);
-      }
-      else {
-	DisplayWORD(16,t/3600);
-      }
+void DisplayTime(long t) { // t est le temps transforme en seconde 3600 * H + 60 * M + S
+	
+	if (t/3600 < 10) {
+		DisplayWORD(16,0);
+		DisplayWORD(17,t/3600);
+	} else {
+		DisplayWORD(16,t/3600);
+	}
 
-      DisplayChar (18,':');
+	DisplayChar (18,':');
 
-      if ((t/60)%60 < 10) {
-	DisplayWORD(19,0);
-	DisplayWORD(20,(t/60)%60);
-      }
-      else {
-	DisplayWORD(19,(t/60)%60);
-      }
+	if ((t/60)%60 < 10) {
+		DisplayWORD(19,0);
+		DisplayWORD(20,(t/60)%60);
+	} else {
+		DisplayWORD(19,(t/60)%60);
+	}
 
-      DisplayChar (21, ':');
+	DisplayChar (21, ':');
 
-      if (t%60 < 10) {
-	DisplayWORD(22,0);
-	DisplayWORD(23,t%60);
-      }
-      else {
-	DisplayWORD(22,t%60);
-      }
-  }
+    if (t%60 < 10) {
+		DisplayWORD(22,0);
+		DisplayWORD(23,t%60);
+	} else {
+		DisplayWORD(22,t%60);
+	}
+	
+}
 /*************************************************
  Function DisplayWORD:
  writes a WORD in hexa on the position indicated by
