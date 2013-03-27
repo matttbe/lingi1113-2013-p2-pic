@@ -1,21 +1,26 @@
 AS = gpasm
 CC = sdcc
-CFLAGS= -c -mpic16 -p18f97j60  -o$@ 
+CFLAGS= -c -mpic16 -p18f97j60 -V -o$@ 
 LD = sdcc
-LDFLAGS= -mpic16 -p18f97j60 -L/usr/local/lib/pic16 -llibio18f97j60.lib \
+
+ifndef PREFIX
+	PREFIX=/usr/local
+endif
+
+LDFLAGS= -mpic16 -p18f97j60 -L$(PREFIX)/lib/pic16 -L$(PREFIX)/share/sdcc/lib/src/pic16/startup/ -L$(PREFIX)/share/sdcc/lib/src/pic16/libc/ -llibio18f97j60.lib \
          -llibdev18f97j60.lib -llibc18f.a
 AR = ar
 RM = rm
 
 OBJECTS= Objects/LCDBlocking.o
 
-SDCC_HEADERS=/usr/local/share/sdcc/include/string.h \
-   /usr/local/share/sdcc/include/stdlib.h \
-   /usr/local/share/sdcc/include/stdio.h \
-   /usr/local/share/sdcc/include/stddef.h \
-   /usr/local/share/sdcc/include/stdarg.h 
+SDCC_HEADERS=$(PREFIX)/share/sdcc/include/string.h \
+   $(PREFIX)/share/sdcc/include/stdlib.h \
+   $(PREFIX)/share/sdcc/include/stdio.h \
+   $(PREFIX)/share/sdcc/include/stddef.h \
+   $(PREFIX)/share/sdcc/include/stdarg.h 
 
-SDCC_PIC16_HEADERS=/usr/local/share/sdcc/include/pic16/pic18f97j60.h
+SDCC_PIC16_HEADERS=$(PREFIX)/share/sdcc/include/pic16/pic18fregs.h
 
 TCPIP_HEADERS=   Include/TCPIP_Stack/ETH97J60.h \
    Include/TCPIP_Stack/LCDBlocking.h 
@@ -42,12 +47,12 @@ Objects/led.o : led.c $(SDCC_HEADERS) $(SDCC_PIC16_HEADERS) \
 Objects/LCDBlocking.o : TCPIP_Stack/LCDBlocking.c $(SDCC_HEADERS)  \
    $(SDCC_PIC16_HEADERS) $(APP_HEADERS) $(TCPIP_HEADERS)
 	$(CC) -c -mpic16 -p18f97j60  -o"Objects/LCDBlocking.o" \
-              -L/usr/local/lib/pic16  TCPIP_Stack/LCDBlocking.c
+              -L$(PREFIX)/lib/pic16  TCPIP_Stack/LCDBlocking.c
 
 Objects/Tick.o : TCPIP_Stack/Tick.c  $(SDCC_HEADERS)  \
    $(SDCC_PIC16_HEADERS) $(APP_HEADERS) $(TCPIP_HEADERS)
 	$(CC) -c -mpic16 -p18f97j60  -o"Objects/Tick.o" \
-              -L/usr/local/lib/pic16  TCPIP_Stack/Tick.c
+              -L$(PREFIX)/lib/pic16  TCPIP_Stack/Tick.c
 
 clean : 
 	$(RM) $(OBJECTS)
