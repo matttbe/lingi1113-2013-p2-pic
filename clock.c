@@ -18,14 +18,14 @@
 #define CLOCK_FREQ 25000000     // Fréquence modifiée pour correspondre à une seconde
 #define EXEC_FREQ CLOCK_FREQ/4  //4 clock cycles to execute 1 instruction
 
-void DisplayString(BYTE pos, char* text);
-void DisplayWORD(BYTE pos, WORD w);
-void DisplayIPValue(DWORD IPdw);
-size_t strlcpy(char *dst, const char *src, size_t siz);
-void delay_1ms(void);
-void delay_ms(unsigned int ms);
-void DisplayChar(BYTE pos, char text);
-void DisplayfTime(long t);
+void DisplayString (BYTE pos, char* text);
+void DisplayWORD (BYTE pos, WORD w);
+void DisplayIPValue (DWORD IPdw);
+size_t strlcpy (char *dst, const char *src, size_t siz);
+void delay_1ms (void);
+void delay_ms (unsigned int ms);
+void DisplayChar (BYTE pos, char text);
+void DisplayfTime (long t);
 
 
 int iState = 0;
