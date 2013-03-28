@@ -39,38 +39,32 @@ typedef enum {
 ButtonState iState = 0;
 UINT32 fTime = 0, fAlarm = 0;
 UINT8 iHours = 0, iMinutes = 0, iSeconds = 0; // Réglage de l'heure de l'horloge et de l'fAlarme
-UINT8 bBool = 0; // Assure qu'on entre dans la routine que d'un seul état par interruption
-UINT8 i, iBip = 0;
+UINT8 iBip = 0;
 
-void high_isr (void) interrupt 1
+void high_isr (void) __interrupt 1
 {
-	bBool = 1;
 	if(INTCON3bits.INT1IF == 1 || INTCON3bits.INT3IF == 1)
 	{
 		if(BUTTON0_IO)
 		{ // change the clock/alarm
-			if (bBool == 1)
+			switch (iState)
 			{
-				switch (iState)
-				{
-					case BUTTON_HOURS_CLOCK: // hour
-					case BUTTON_HOURS_ALARM:
-						iHours = (iHours + 1) % 24;
-					break;
-					case BUTTON_MINUTES_CLOCK: // min
-					case BUTTON_MINUTES_ALARM:
-						iMinutes = (iMinutes + 1) % 60;
-					break;
-					case BUTTON_SECONDS_CLOCK: // sec
-					case BUTTON_SECONDS_ALARM:
-						iSeconds = (iSeconds + 1) % 60;
-					break;
-					default: // horloge: state == 0
-					break;
-				}
-				display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
-				bBool = 0;
+				case BUTTON_HOURS_CLOCK: // hour
+				case BUTTON_HOURS_ALARM:
+					iHours = (iHours + 1) % 24;
+				break;
+				case BUTTON_MINUTES_CLOCK: // min
+				case BUTTON_MINUTES_ALARM:
+					iMinutes = (iMinutes + 1) % 60;
+				break;
+				case BUTTON_SECONDS_CLOCK: // sec
+				case BUTTON_SECONDS_ALARM:
+					iSeconds = (iSeconds + 1) % 60;
+				break;
+				default: // horloge: state == 0
+				break;
 			}
+			display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
 
 			INTCON3bits.INT1IF = 0;   //clear INT1 flag
 			INTCON3bits.INT3IF = 0; 
@@ -79,64 +73,60 @@ void high_isr (void) interrupt 1
 
 		else if (BUTTON1_IO)
 		{ // Bouton pour passer à l'état suivant
-			if (bBool == 1)
+			switch (iState)
 			{
-				switch (iState)
+				case BUTTON_CLOCK:
 				{
-					case BUTTON_CLOCK:
-					{
-						iHours = fTime / 3600;
-						iMinutes = (fTime / 60) % 60;
-						iSeconds = fTime % 60;
-						lcd_display_string (0, "SetClock : hour");
-					}
-					break;
-					case BUTTON_HOURS_CLOCK:
-					{
-						lcd_display_string (0, "SetClock : min");
-					}
-					break;
-					case BUTTON_MINUTES_CLOCK:
-					{
-						lcd_display_string (0, "SetClock : sec");
-					}
-					break;
-					case BUTTON_SECONDS_CLOCK:
-					{
-						fTime = 3600 * iHours + 60 * iMinutes + iSeconds;
-						iHours = fAlarm / 3600;
-						iMinutes = (fAlarm / 60) % 60;
-						iSeconds = fAlarm % 60;
-
-						lcd_display_string (0, "SetfAlarm : hour");
-						lcd_display_string (POSITION_HOURS, "00:00:00");
-					}
-					break;
-					case BUTTON_HOURS_ALARM:
-					{
-						lcd_display_string (0, "SetfAlarm : min");
-					}
-					break;
-					case BUTTON_MINUTES_ALARM:
-					{
-						lcd_display_string (0, "SetfAlarm : sec");
-					}
-					break;
-					case BUTTON_SECONDS_ALARM:
-					{
-						fAlarm = 3600 * iHours + 60 * iMinutes + iSeconds;
-
-						lcd_display_string (0, CLOCK_NAME);
-						lcd_display_string (POSITION_HOURS, "00:00:00");
-					}
-					break;
-					default: // horloge: state == 0
-					break;
+					iHours = fTime / 3600;
+					iMinutes = (fTime / 60) % 60;
+					iSeconds = fTime % 60;
+					lcd_display_string (0, "SetClock : hour");
 				}
-				iState = (iState + 1) % 7;
-				display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
-				bBool = 0;
+				break;
+				case BUTTON_HOURS_CLOCK:
+				{
+					lcd_display_string (0, "SetClock : min");
+				}
+				break;
+				case BUTTON_MINUTES_CLOCK:
+				{
+					lcd_display_string (0, "SetClock : sec");
+				}
+				break;
+				case BUTTON_SECONDS_CLOCK:
+				{
+					fTime = 3600 * iHours + 60 * iMinutes + iSeconds;
+					iHours = fAlarm / 3600;
+					iMinutes = (fAlarm / 60) % 60;
+					iSeconds = fAlarm % 60;
+
+					lcd_display_string (0, "SetfAlarm : hour");
+					lcd_display_string (POSITION_HOURS, "00:00:00");
+				}
+				break;
+				case BUTTON_HOURS_ALARM:
+				{
+					lcd_display_string (0, "SetfAlarm : min");
+				}
+				break;
+				case BUTTON_MINUTES_ALARM:
+				{
+					lcd_display_string (0, "SetfAlarm : sec");
+				}
+				break;
+				case BUTTON_SECONDS_ALARM:
+				{
+					fAlarm = 3600 * iHours + 60 * iMinutes + iSeconds;
+
+					lcd_display_string (0, CLOCK_NAME);
+					lcd_display_string (POSITION_HOURS, "00:00:00");
+				}
+				break;
+				default: // horloge: state == 0
+				break;
 			}
+			iState = (iState + 1) % 7;
+			display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
 		}
 
 		INTCON3bits.INT1IF  = 0;  
