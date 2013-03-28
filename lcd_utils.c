@@ -30,19 +30,19 @@
 
 static UINT8 iPrevHour = 0, iPrevMin = 0;
 
-static void display_sub_time (int iNumbers, int iIndex)
+static void display_sub_time (BYTE iNumbers, BYTE iIndex)
 {
 	if (iNumbers < 10)
 	{
 		char cBuff[1];
-		itoa (iNumbers, cBuff, 10); // convert to char
+		sprintf (cBuff, "%d", iNumbers); // convert to char
 		lcd_save_char (iIndex, '0');
 		lcd_save_char (iIndex + 1, cBuff[0]);
 	}
 	else
 	{
 		char cBuff[2];
-		itoa (iNumbers, cBuff, 10); // convert to char
+		sprintf (cBuff, "%d", iNumbers); // convert to char
 		lcd_save_char (iIndex, cBuff[0]);
 		lcd_save_char (iIndex + 1, cBuff[1]);
 	}
