@@ -10,7 +10,7 @@ endif
 LDFLAGS= -mpic16 -p18f97j60 -L$(PREFIX)/lib/pic16 -L$(PREFIX)/share/sdcc/lib/src/pic16/startup/ -L$(PREFIX)/share/sdcc/lib/src/pic16/libc/ -llibio18f97j60.lib \
          -llibdev18f97j60.lib -llibc18f.a
 AR = ar
-RM = rm
+RM = rm -f
 
 OBJECTS= Objects/LCDBlocking.o
 
@@ -55,6 +55,6 @@ Objects/Tick.o : TCPIP_Stack/Tick.c  $(SDCC_HEADERS)  \
               -L$(PREFIX)/lib/pic16  TCPIP_Stack/Tick.c
 
 clean : 
-	$(RM) $(OBJECTS)
+	$(RM) $(OBJECTS) clock.cod clock.hex clock.lst Objects/*.o
 
 
