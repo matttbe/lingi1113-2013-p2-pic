@@ -67,7 +67,10 @@ void high_isr (void) __interrupt 1
 				break;
 			}
 			if (bRefresh)
-				display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
+			{
+				long int fCurrentTime = 3600 * (long int)iHours + 60 * (long int)iMinutes + (long int)iSeconds;
+				display_ftime (fCurrentTime, 1);
+			}
 
 			INTCON3bits.INT1IF = 0;   //clear INT1 flag
 			INTCON3bits.INT3IF = 0; 
@@ -118,9 +121,9 @@ void high_isr (void) __interrupt 1
 			display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
 		}
 
-		INTCON3bits.INT1IF  = 0;  
-		INTCON3bits.INT3IF  = 0; 
-		INTCONbits.T0IF     = 0; 
+		INTCON3bits.INT1IF  = 0;
+		INTCON3bits.INT3IF  = 0;
+		INTCONbits.T0IF     = 0;
 	}
 }
 
