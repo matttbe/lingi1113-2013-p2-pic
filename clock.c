@@ -21,14 +21,9 @@
 #define LOW(a)     (a & 0xFF)
 #define HIGH(a)    ((a>>8) & 0xFF)
 #define CLOCK_FREQ 25000000     // Fréquence modifiée pour correspondre à une seconde
-#define EXEC_FREQ CLOCK_FREQ/4  //4 clock cycles to execute 1 instruction
+#define EXEC_FREQ (CLOCK_FREQ/4)  //4 clock cycles to execute 1 instruction
 
 #include "delay.c"
-
-UINT32 fTime = 0, fAlarm = 0;
-UINT8 iHours = 0, iMinutes = 0, iSeconds = 0; // Réglage de l'heure de l'horloge et de l'fAlarme
-UINT8 bBool = 0; // Assure qu'on entre dans la routine que d'un seul état par interruption
-UINT8 i, iBip = 0;
 
 typedef enum {
 	BUTTON_CLOCK = 0,
@@ -41,6 +36,10 @@ typedef enum {
 } ButtonState;
 
 ButtonState iState = 0;
+UINT32 fTime = 0, fAlarm = 0;
+UINT8 iHours = 0, iMinutes = 0, iSeconds = 0; // Réglage de l'heure de l'horloge et de l'fAlarme
+UINT8 bBool = 0; // Assure qu'on entre dans la routine que d'un seul état par interruption
+UINT8 i, iBip = 0;
 
 void high_isr (void) interrupt 1
 {
