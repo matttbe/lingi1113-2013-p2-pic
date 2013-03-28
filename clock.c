@@ -17,14 +17,13 @@
 #include <pic18fregs.h>  //defines the address corresponding to the symbolic
                          //names of the sfr
 
+
 #define LOW(a)     (a & 0xFF)
 #define HIGH(a)    ((a>>8) & 0xFF)
 #define CLOCK_FREQ 25000000     // Fréquence modifiée pour correspondre à une seconde
 #define EXEC_FREQ CLOCK_FREQ/4  //4 clock cycles to execute 1 instruction
 
-void delay_1ms (void);
-void delay_ms (unsigned int ms);
-
+#include "delay.c"
 
 UINT32 fTime = 0, fAlarm = 0;
 UINT8 iHours = 0, iMinutes = 0, iSeconds = 0; // Réglage de l'heure de l'horloge et de l'fAlarme
@@ -201,28 +200,5 @@ void main (void)
 		}
 	}
  
-}
-
-void delay_1ms (void)
-{
-	TMR0H = (0x10000 - EXEC_FREQ / 1000) >> 8;
-	TMR0L = (0x10000 - EXEC_FREQ / 1000) & 0xff;
-	T0CONbits.TMR0ON = 0; // disable timer
-	T0CONbits.T08BIT = 0; // use timer 16-bit counter
-	T0CONbits.T0CS   = 0; // use timer instruction cycle clock
-	T0CONbits.PSA    = 1; // disable timer prescaler
-	INTCONbits.T0IF  = 0; // clear timer overflow bit
-	T0CONbits.TMR0ON = 1; // enable timer
-	while (! INTCONbits.T0IF) {} // wait for timer overflow
-	INTCONbits.T0IF  = 0; // clear timer overflow bit
-	T0CONbits.TMR0ON = 0; // disable timer
-}
-
-void delay_ms (unsigned int ms)
-{
-	while (ms--)
-	{
-		delay_1ms ();
-	}
 }
 
