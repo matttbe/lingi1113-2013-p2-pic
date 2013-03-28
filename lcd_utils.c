@@ -35,22 +35,22 @@ static void display_sub_time (BYTE iNumbers, BYTE iIndex)
 	if (iNumbers < 10)
 	{
 		char cBuff[1];
-		sprintf (cBuff, "%d", iNumbers); // convert to char
+		sprintf (cBuff, "%hd", iNumbers); // convert to char
 		lcd_save_char (iIndex, '0');
 		lcd_save_char (iIndex + 1, cBuff[0]);
 	}
 	else
 	{
 		char cBuff[2];
-		sprintf (cBuff, "%d", iNumbers); // convert to char
+		sprintf (cBuff, "%hd", iNumbers); // convert to char
 		lcd_save_char (iIndex, cBuff[0]);
 		lcd_save_char (iIndex + 1, cBuff[1]);
 	}
 }
  
-void display_ftime (long fTime, BYTE bFullRefresh)
+void display_ftime (long int fCurrentTime, BYTE bFullRefresh)
 { // t est le temps transforme en seconde 3600 * H + 60 * M + S
-	int iHour = fTime / 3600, iMin = (fTime / 60) % 60, iSec = fTime % 60;
+	BYTE iHour = fCurrentTime / 3600, iMin = (fCurrentTime / 60) % 60, iSec = fCurrentTime % 60;
 
 	if (bFullRefresh || iHour != iPrevHour)
 	{
@@ -58,18 +58,12 @@ void display_ftime (long fTime, BYTE bFullRefresh)
 		iPrevHour = iHour;
 	}
 
-	// lcd_display_char (18, ':');
-
-
 	if (bFullRefresh || iMin != iPrevMin)
 	{
 		display_sub_time (iMin, POSITION_MINUTES);
 		iPrevMin = iMin;
 	}
 
-	// lcd_display_char (21, ':');
-
-	// if (iSec != iPrevSec)
 	display_sub_time (iSec, POSITION_SECONDS);
 
 	lcd_update_display ();

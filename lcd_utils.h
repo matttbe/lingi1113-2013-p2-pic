@@ -33,7 +33,7 @@
 #define POSITION_MINUTES (POSITION_HOURS + 3)
 #define POSITION_SECONDS (POSITION_MINUTES + 3)
 
-void display_ftime (long t, BYTE bFullRefresh);
+void display_ftime (long int fCurrentTime, BYTE bFullRefresh);
 
 #endif
 
