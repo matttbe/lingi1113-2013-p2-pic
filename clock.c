@@ -47,6 +47,7 @@ void high_isr (void) __interrupt 1
 	{
 		if(BUTTON0_IO)
 		{ // change the clock/alarm
+			UINT8 bRefresh = 1;
 			switch (iState)
 			{
 				case BUTTON_HOURS_CLOCK: // hour
@@ -62,9 +63,11 @@ void high_isr (void) __interrupt 1
 					iSeconds = (iSeconds + 1) % 60;
 				break;
 				default: // horloge: state == 0
+					bRefresh = 0;
 				break;
 			}
-			display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
+			if (bRefresh)
+				display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
 
 			INTCON3bits.INT1IF = 0;   //clear INT1 flag
 			INTCON3bits.INT3IF = 0; 
