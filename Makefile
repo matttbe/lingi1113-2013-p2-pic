@@ -34,6 +34,9 @@ clock : Objects/clock.o $(OBJECTS)
 
 led : Objects/led.o
 	$(LD) $(LDFLAGS) Objects/led.o
+	
+freq : Objects/freq.o $(OBJECTS)
+	$(LD) $(LDFLAGS) Objects/freq.o $(OBJECTS)
 
 Objects/clock.o : clock.c $(SDCC_HEADERS) $(SDCC_PIC16_HEADERS) \
    $(APP_HEADERS) $(TCPIP_HEADERS)
@@ -42,6 +45,10 @@ Objects/clock.o : clock.c $(SDCC_HEADERS) $(SDCC_PIC16_HEADERS) \
 Objects/led.o : led.c $(SDCC_HEADERS) $(SDCC_PIC16_HEADERS) \
    $(APP_HEADERS) $(TCPIP_HEADERS)
 	$(CC) $(CFLAGS) led.c
+	
+Objects/freq.o : freq.c $(SDCC_HEADERS) $(SDCC_PIC16_HEADERS) \
+   $(APP_HEADERS) $(TCPIP_HEADERS)
+	$(CC) $(CFLAGS) freq.c
 
 
 Objects/LCDBlocking.o : TCPIP_Stack/LCDBlocking.c $(SDCC_HEADERS)  \
