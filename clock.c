@@ -26,12 +26,22 @@ void delay_1ms (void);
 void delay_ms (unsigned int ms);
 
 
-UINT8 iState = 0;
 UINT32 fTime = 0, fAlarm = 0;
 UINT8 iHours = 0, iMinutes = 0, iSeconds = 0; // Réglage de l'heure de l'horloge et de l'fAlarme
 UINT8 bBool = 0; // Assure qu'on entre dans la routine que d'un seul état par interruption
 UINT8 i, iBip = 0;
 
+typedef enum {
+	BUTTON_CLOCK = 0,
+	BUTTON_HOURS_CLOCK,
+	BUTTON_MINUTES_CLOCK,
+	BUTTON_SECONDS_CLOCK,
+	BUTTON_HOURS_ALARM,
+	BUTTON_MINUTES_ALARM,
+	BUTTON_SECONDS_ALARM
+} ButtonState;
+
+ButtonState iState = 0;
 
 void high_isr (void) interrupt 1
 {
@@ -39,21 +49,21 @@ void high_isr (void) interrupt 1
 	if(INTCON3bits.INT1IF == 1 || INTCON3bits.INT3IF == 1)
 	{
 		if(BUTTON0_IO)
-		{ // Bouton pour régler l'heure
+		{ // change the clock/alarm
 			if (bBool == 1)
 			{
 				switch (iState)
 				{
-					case 1: // hour
-					case 4:
+					case BUTTON_HOURS_CLOCK: // hour
+					case BUTTON_HOURS_ALARM:
 						iHours = (iHours + 1) % 24;
 					break;
-					case 2: // min
-					case 5:
+					case BUTTON_MINUTES_CLOCK: // min
+					case BUTTON_MINUTES_ALARM:
 						iMinutes = (iMinutes + 1) % 60 ;
 					break;
-					case 3: // sec
-					case 6:
+					case BUTTON_SECONDS_CLOCK: // sec
+					case BUTTON_SECONDS_ALARM:
 						iSeconds = (iSeconds + 1) % 60;
 					break;
 					default: // horloge: state == 0
@@ -76,23 +86,26 @@ void high_isr (void) interrupt 1
 			{
 				switch (iState)
 				{
-					case 0:
-						iState = 1;
+					case BUTTON_CLOCK:
+					{
 						iHours = fTime / 3600;
 						iMinutes = (fTime / 60) % 60;
 						iSeconds = fTime % 60;
 						lcd_display_string (0, "SetClock : hour");
+					}
 					break;
-					case 1:
-						iState = 2;
+					case BUTTON_HOURS_CLOCK:
+					{
 						lcd_display_string (0, "SetClock : min");
+					}
 					break;
-					case 2:
-						iState = 3;
+					case BUTTON_MINUTES_CLOCK:
+					{
 						lcd_display_string (0, "SetClock : sec");
+					}
 					break;
-					case 3:
-						iState = 4;
+					case BUTTON_SECONDS_CLOCK:
+					{
 						fTime = 3600 * iHours + 60 * iMinutes + iSeconds;
 						iHours = fAlarm / 3600;
 						iMinutes = (fAlarm / 60) % 60;
@@ -100,25 +113,30 @@ void high_isr (void) interrupt 1
 
 						lcd_display_string (0, "SetfAlarm : hour");
 						lcd_display_string (POSITION_HOURS, "00:00:00");
+					}
 					break;
-					case 4:
-						iState = 5;
+					case BUTTON_HOURS_ALARM:
+					{
 						lcd_display_string (0, "SetfAlarm : min");
+					}
 					break;
-					case 5:
-						iState = 6;
+					case BUTTON_MINUTES_ALARM:
+					{
 						lcd_display_string (0, "SetfAlarm : sec");
+					}
 					break;
-					case 6:
-						iState = 0;
+					case BUTTON_SECONDS_ALARM:
+					{
 						fAlarm = 3600 * iHours + 60 * iMinutes + iSeconds;
 
 						lcd_display_string (0, "THE TIME MACHINE");
 						lcd_display_string (POSITION_HOURS, "00:00:00");
+					}
 					break;
 					default: // horloge: state == 0
 					break;
 				}
+				iState = (iState + 1) % 6;
 				display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
 				bBool = 0;
 			}
