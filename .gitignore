@@ -4,3 +4,4 @@
 *.asm
 *.lst
 *.cod
+/lcd.sym
