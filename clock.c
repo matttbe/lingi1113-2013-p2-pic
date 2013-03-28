@@ -40,32 +40,30 @@ void high_isr (void) interrupt 1
 	{
 		if(BUTTON0_IO)
 		{ // Bouton pour régler l'heure
-			if(iState == 0 && bBool== 1)
-			{ // Etat Horloge
+			if (bBool == 1)
+			{
+				switch (iState)
+				{
+					case 1: // hour
+					case 4:
+						iHours = (iHours + 1) % 24;
+					break;
+					case 2: // min
+					case 5:
+						iMinutes = (iMinutes + 1) % 60 ;
+					break;
+					case 3: // sec
+					case 6:
+						iSeconds = (iSeconds + 1) % 60;
+					break;
+					default: // horloge: state == 0
+						bBool = 0;
+					break;
+				}
+				if (bBool == 1)
+					display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
 				bBool = 0;
 			}
-
-			if((iState == 1 || iState == 4) && bBool== 1)
-			{ // Reglage heure Horloge
-				iHours = (iHours + 1) % 24;
-				display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
-				bBool = 0;
-			}
-
-			if((iState == 2  || iState == 5) && bBool== 1)
-			{ // Reglage minutes Horloge
-				iMinutes = (iMinutes + 1) % 60 ;
-				display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
-				bBool = 0;
-			}
-
-			if((iState == 3  || iState == 6) && bBool== 1)
-			{ // Reglage secondes Horloge
-				iSeconds = (iSeconds + 1) % 60;
-				display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
-				bBool = 0;
-			}
-
 
 			INTCON3bits.INT1IF = 0;   //clear INT1 flag
 			INTCON3bits.INT3IF = 0; 
@@ -74,70 +72,53 @@ void high_isr (void) interrupt 1
 
 		else if(BUTTON1_IO)
 		{ // Bouton pour passer à l'état suivant
-			if(iState == 0  && bBool == 1)
-			{ 
-				iState = 1;
-				iHours = fTime / 3600;
-				iMinutes = (fTime / 60) % 60;
-				iSeconds = fTime % 60;
-				lcd_display_string (0, "SetClock : hour");
-				display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
-				bBool = 0;
-			}
-
-			if(iState == 1 && bBool == 1)
+			if (bBool == 1)
 			{
-				iState = 2;
-				lcd_display_string (0, "SetClock : min");
-				display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
-				bBool = 0;
-			}
+				switch (iState)
+				{
+					case 0:
+						iState = 1;
+						iHours = fTime / 3600;
+						iMinutes = (fTime / 60) % 60;
+						iSeconds = fTime % 60;
+						lcd_display_string (0, "SetClock : hour");
+					break;
+					case 1:
+						iState = 2;
+						lcd_display_string (0, "SetClock : min");
+					break;
+					case 2:
+						iState = 3;
+						lcd_display_string (0, "SetClock : sec");
+					break;
+					case 3:
+						iState = 4;
+						fTime = 3600 * iHours + 60 * iMinutes + iSeconds;
+						iHours = fAlarm / 3600;
+						iMinutes = (fAlarm / 60) % 60;
+						iSeconds = fAlarm % 60;
 
-			if(iState == 2 && bBool == 1)
-			{
-				iState = 3;
-				lcd_display_string (0, "SetClock : sec");
-				display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
-				bBool = 0;
-			}
+						lcd_display_string (0, "SetfAlarm : hour");
+						lcd_display_string (POSITION_HOURS, "00:00:00");
+					break;
+					case 4:
+						iState = 5;
+						lcd_display_string (0, "SetfAlarm : min");
+					break;
+					case 5:
+						iState = 6;
+						lcd_display_string (0, "SetfAlarm : sec");
+					break;
+					case 6:
+						iState = 0;
+						fAlarm = 3600 * iHours + 60 * iMinutes + iSeconds;
 
-			if(iState == 3 && bBool == 1)
-			{
-				iState = 4;
-				fTime = 3600 * iHours + 60 * iMinutes + iSeconds;
-				iHours = fAlarm / 3600;
-				iMinutes = (fAlarm / 60) % 60;
-				iSeconds = fAlarm % 60;
-
-				lcd_display_string (0, "SetfAlarm : hour");
-				lcd_display_string (POSITION_HOURS, "00:00:00");
-				display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
-				bBool = 0;
-			}
-
-			if(iState == 4 && bBool== 1)
-			{
-				iState = 5;
-				lcd_display_string (0, "SetfAlarm : min");
-				display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
-				bBool = 0;
-			}
-
-			if(iState == 5 && bBool== 1)
-			{
-				iState = 6;
-				lcd_display_string (0, "SetfAlarm : sec");
-				display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
-				bBool = 0;
-			}
-
-			if(iState == 6 && bBool== 1)
-			{
-				iState = 0;
-				fAlarm = 3600 * iHours + 60 * iMinutes + iSeconds;
-
-				lcd_display_string (0, "THE TIME MACHINE");
-				lcd_display_string (POSITION_HOURS, "00:00:00");
+						lcd_display_string (0, "THE TIME MACHINE");
+						lcd_display_string (POSITION_HOURS, "00:00:00");
+					break;
+					default: // horloge: state == 0
+					break;
+				}
 				display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
 				bBool = 0;
 			}
@@ -150,7 +131,7 @@ void high_isr (void) interrupt 1
 }
 
 
-void main(void)
+void main (void)
 {
 	LED0_TRIS = 0; //configure 1st led pin as output (yellow)
 
