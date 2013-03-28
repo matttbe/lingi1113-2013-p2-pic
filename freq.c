@@ -90,13 +90,13 @@ void high_isr (void) __interrupt 1
     
     if ( TMR1F ){        
 		interrT1++;
-		//if ((interrT1 % 1) == 0){//78125) == 0){
-		if (interrT1 != 0){
+		if ((interrT1 % 78125) == 0){// 1) == 0){//
+		//if (interrT1 != 0){
 			freq = interrT0 / (2*interrT1);
 			DisplayString(0,"# inter TMR0/sec");
 			sprintf(freqString," %d ",(int) freq);
 			DisplayString(16,freqString);
-}		//}
+		}		
 		TMR1F = 0;
     }
 	
