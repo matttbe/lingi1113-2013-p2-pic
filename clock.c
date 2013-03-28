@@ -50,16 +50,16 @@ void high_isr (void) __interrupt 1
 			UINT8 bRefresh = 1;
 			switch (iState)
 			{
-				case BUTTON_HOURS_CLOCK: // hour
-				case BUTTON_HOURS_ALARM:
+				case BUTTON_HOURS_CLOCK : // hour
+				case BUTTON_HOURS_ALARM :
 					iHours = (iHours + 1) % 24;
 				break;
-				case BUTTON_MINUTES_CLOCK: // min
-				case BUTTON_MINUTES_ALARM:
+				case BUTTON_MINUTES_CLOCK : // min
+				case BUTTON_MINUTES_ALARM :
 					iMinutes = (iMinutes + 1) % 60;
 				break;
-				case BUTTON_SECONDS_CLOCK: // sec
-				case BUTTON_SECONDS_ALARM:
+				case BUTTON_SECONDS_CLOCK : // sec
+				case BUTTON_SECONDS_ALARM :
 					iSeconds = (iSeconds + 1) % 60;
 				break;
 				default: // horloge: state == 0
@@ -78,26 +78,19 @@ void high_isr (void) __interrupt 1
 		{ // Bouton pour passer à l'état suivant
 			switch (iState)
 			{
-				case BUTTON_CLOCK:
-				{
+				case BUTTON_CLOCK :
 					iHours = fTime / 3600;
 					iMinutes = (fTime / 60) % 60;
 					iSeconds = fTime % 60;
 					lcd_display_string (0, "SetClock : hour");
-				}
 				break;
-				case BUTTON_HOURS_CLOCK:
-				{
+				case BUTTON_HOURS_CLOCK :
 					lcd_display_string (0, "SetClock : min");
-				}
 				break;
-				case BUTTON_MINUTES_CLOCK:
-				{
+				case BUTTON_MINUTES_CLOCK :
 					lcd_display_string (0, "SetClock : sec");
-				}
 				break;
-				case BUTTON_SECONDS_CLOCK:
-				{
+				case BUTTON_SECONDS_CLOCK :
 					fTime = 3600 * iHours + 60 * iMinutes + iSeconds;
 					iHours = fAlarm / 3600;
 					iMinutes = (fAlarm / 60) % 60;
@@ -105,27 +98,20 @@ void high_isr (void) __interrupt 1
 
 					lcd_display_string (0, "SetfAlarm : hour");
 					lcd_display_string (POSITION_HOURS, "00:00:00");
-				}
 				break;
-				case BUTTON_HOURS_ALARM:
-				{
+				case BUTTON_HOURS_ALARM :
 					lcd_display_string (0, "SetfAlarm : min");
-				}
 				break;
-				case BUTTON_MINUTES_ALARM:
-				{
+				case BUTTON_MINUTES_ALARM :
 					lcd_display_string (0, "SetfAlarm : sec");
-				}
 				break;
-				case BUTTON_SECONDS_ALARM:
-				{
+				case BUTTON_SECONDS_ALARM :
 					fAlarm = 3600 * iHours + 60 * iMinutes + iSeconds;
 
 					lcd_display_string (0, CLOCK_NAME);
 					lcd_display_string (POSITION_HOURS, "00:00:00");
-				}
 				break;
-				default: // horloge: state == 0
+				default:
 				break;
 			}
 			iState = (iState + 1) % 7;
