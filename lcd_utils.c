@@ -40,7 +40,12 @@ static void display_sub_time (int iNumbers, int iIndex)
 		lcd_save_char (iIndex + 1, cBuff[0]);
 	}
 	else
-		lcd_save_word (iIndex, iNumbers);
+	{
+		char cBuff[2];
+		itoa (iNumbers, cBuff, 10); // convert to char
+		lcd_save_char (iIndex, cBuff[0]);
+		lcd_save_char (iIndex + 1, cBuff[1]);
+	}
 }
  
 void display_ftime (long fTime, BYTE bFullRefresh)

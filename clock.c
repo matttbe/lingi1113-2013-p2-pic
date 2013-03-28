@@ -22,6 +22,7 @@
 #define HIGH(a)    ((a>>8) & 0xFF)
 #define CLOCK_FREQ 25000000     // Fréquence modifiée pour correspondre à une seconde
 #define EXEC_FREQ (CLOCK_FREQ/4)  //4 clock cycles to execute 1 instruction
+#define CLOCK_NAME "Tea Time Clock"
 
 #include "delay.c"
 
@@ -58,27 +59,25 @@ void high_isr (void) interrupt 1
 					break;
 					case BUTTON_MINUTES_CLOCK: // min
 					case BUTTON_MINUTES_ALARM:
-						iMinutes = (iMinutes + 1) % 60 ;
+						iMinutes = (iMinutes + 1) % 60;
 					break;
 					case BUTTON_SECONDS_CLOCK: // sec
 					case BUTTON_SECONDS_ALARM:
 						iSeconds = (iSeconds + 1) % 60;
 					break;
 					default: // horloge: state == 0
-						bBool = 0;
 					break;
 				}
-				if (bBool == 1)
-					display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
+				display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
 				bBool = 0;
 			}
 
 			INTCON3bits.INT1IF = 0;   //clear INT1 flag
 			INTCON3bits.INT3IF = 0; 
-			INTCONbits.T0IF=0;
+			INTCONbits.T0IF = 0;
 		}
 
-		else if(BUTTON1_IO)
+		else if (BUTTON1_IO)
 		{ // Bouton pour passer à l'état suivant
 			if (bBool == 1)
 			{
@@ -127,14 +126,14 @@ void high_isr (void) interrupt 1
 					{
 						fAlarm = 3600 * iHours + 60 * iMinutes + iSeconds;
 
-						lcd_display_string (0, "THE TIME MACHINE");
+						lcd_display_string (0, CLOCK_NAME);
 						lcd_display_string (POSITION_HOURS, "00:00:00");
 					}
 					break;
 					default: // horloge: state == 0
 					break;
 				}
-				iState = (iState + 1) % 6;
+				iState = (iState + 1) % 7;
 				display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
 				bBool = 0;
 			}
@@ -174,7 +173,7 @@ void main (void)
 	LCDInit ();
 	delay_ms (1000);
 
-	lcd_display_string (0, "THE TIME MACHINE"); //first arg is start position
+	lcd_display_string (0, CLOCK_NAME); //first arg is start position
 	// on 32 positions LCD
 	lcd_display_string (POSITION_HOURS, "00:00:00");
 
@@ -198,6 +197,5 @@ void main (void)
 			display_ftime(fTime, 0);
 		}
 	}
- 
 }
 
