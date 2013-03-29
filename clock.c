@@ -20,7 +20,7 @@
 #define HIGH(a)    ((a>>8) & 0xFF)
 #define CLOCK_FREQ 25000000 // 25MHz
 #define EXEC_FREQ (CLOCK_FREQ / 4)  //4 clock cycles to execute 1 instruction
-#define INIT_TIMER0H 0x46
+#define INIT_TIMER0H 0x45
 #define INIT_TIMER0L 0x00
 
 #define CLOCK_NAME "Tea Time Clock"
@@ -41,6 +41,7 @@ ButtonState iState = BUTTON_CLOCK;
 UINT32 fTime = 0, fAlarm = 0;
 UINT8 iHours = 0, iMinutes = 0, iSeconds = 0; // Réglage de l'heure de l'horloge et de l'fAlarme
 UINT8 iBip = 0;
+UINT8 bRefresh = 0;
 
 static UINT32 _get_time (UINT8 iH, UINT8 iM, UINT8 iS)
 {
@@ -51,24 +52,27 @@ static UINT32 _get_time (UINT8 iH, UINT8 iM, UINT8 iS)
 // high interruptions
 void high_isr (void) __interrupt 1
 {
-	if (INTCONbits.TMR0IF == 1) // overflow on TMR0
+	if (INTCONbits.TMR0IF == 1 // overflow on TMR0
+		&& (iState == 0 || iState > BUTTON_SECONDS_CLOCK)) // only for the clock
 	{
 		fTime++;
-		fTime = fTime % 86400; // Car on incrémente toujours l'heure, il est possible qu'on atteigne une heure > 24:00:00, d'où le modulo
-		if (fTime == fAlarm) // Heure de l'fAlarme
+		fTime = fTime % 86400; // < 24h
+		if (fTime == fAlarm) // Bomb exploded
 			iBip = 30;
 
 		if(iBip > 0)
-		{ // On fait cligonter pendant 30 secondes en cas d'fAlarme
+		{ // the led can light during 30sec
 			LED0_IO ^= 1;
 			iBip--;
 		}
-		display_ftime(fTime, 0); ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// display_ftime(fTime, 0); // display not in the interruption but in the mainloop
+		bRefresh = 1;
+		
 		TMR0H = INIT_TIMER0H; // restart the counter for TMR0H
 		TMR0L = INIT_TIMER0L; // same for low bits
 		INTCONbits.TMR0IF = 0;//clear timer0 interrupt flag
 	}
-	if(INTCON3bits.INT1IF == 1 || INTCON3bits.INT3IF == 1)
+	if (INTCON3bits.INT1IF == 1 || INTCON3bits.INT3IF == 1) // buttons
 	{
 		long int fCurrentTime;
 		if(BUTTON0_IO)
@@ -144,7 +148,7 @@ void high_isr (void) __interrupt 1
 				break;
 			}
 			fCurrentTime = _get_time (iHours, iMinutes, iSeconds);
-			display_ftime (fCurrentTime, 1); // display the time here in the interruption (we don't check the seconds)
+			display_ftime (fCurrentTime, 1); // display the time here in the interruption because the time stopped here
 		}
 
 		INTCON3bits.INT1IF  = 0;
@@ -199,28 +203,13 @@ void main (void)
 	// on 32 positions LCD
 	lcd_display_string (POSITION_HOURS, "00:00:00");
 
-	/*while(1)
+	while (1)
 	{
-		if (bRefresh == 1)
+		if (iState == 0 && bRefresh == 1)
 		{
-			lcd_update_display ();
+			display_ftime(fTime, 0); // do not refresh the lcd in the interruption
 			bRefresh = 0;
 		}
-		/*delay_ms (1000);
-		if (iState == 0)
-		{
-			fTime++;
-			fTime = fTime % 86400; // Car on incrémente toujours l'heure, il est possible qu'on atteigne une heure > 24:00:00, d'où le modulo
-			if (fTime == fAlarm) // Heure de l'fAlarme
-				iBip = 30;
-
-			if(iBip > 0)
-			{ // On fait cligonter pendant 30 secondes en cas d'fAlarme
-				LED0_IO ^= 1;
-				iBip--;
-			}
-			display_ftime(fTime, 0);
-		}*
-	}*/
+	}
 }
 
