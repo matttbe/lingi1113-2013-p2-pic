@@ -40,6 +40,12 @@ UINT32 fTime = 0, fAlarm = 0;
 UINT8 iHours = 0, iMinutes = 0, iSeconds = 0; // Réglage de l'heure de l'horloge et de l'fAlarme
 UINT8 iBip = 0;
 
+static UINT32 _get_time (UINT8 iH, UINT8 iM, UINT8 iS)
+{
+	UINT32 fCurrTime = 3600 * (long int)iH + 60 * (long int)iM + (long int)iS;
+	return fCurrTime;
+}
+
 // high interruptions
 void high_isr (void) __interrupt 1
 {
@@ -69,7 +75,7 @@ void high_isr (void) __interrupt 1
 			}
 			if (bRefresh)
 			{
-				fCurrentTime = 3600 * (long int)iHours + 60 * (long int)iMinutes + (long int)iSeconds;
+				fCurrentTime = _get_time (iHours, iMinutes, iSeconds);
 				display_ftime (fCurrentTime, 1); // display the time here in the interruption (we don't check the seconds)
 			}
 
@@ -80,46 +86,45 @@ void high_isr (void) __interrupt 1
 
 		else if (BUTTON1_IO)
 		{ // Bouton pour passer à l'état suivant
+			iState = (iState + 1) % 7;
 			switch (iState)
 			{
-				case BUTTON_CLOCK :
+				case BUTTON_HOURS_CLOCK :
 					iHours = fTime / 3600;
 					iMinutes = (fTime / 60) % 60;
 					iSeconds = fTime % 60;
 					lcd_display_string (0, "SetClock : hour");
 				break;
-				case BUTTON_HOURS_CLOCK :
+				case BUTTON_MINUTES_CLOCK :
 					lcd_display_string (0, "SetClock : min");
 				break;
-				case BUTTON_MINUTES_CLOCK :
+				case BUTTON_SECONDS_CLOCK :
 					lcd_display_string (0, "SetClock : sec");
 				break;
-				case BUTTON_SECONDS_CLOCK :
-					fTime = 3600 * iHours + 60 * iMinutes + iSeconds;
+				case BUTTON_HOURS_ALARM :
+					fTime = _get_time (iHours, iMinutes, iSeconds); // the new time is now defined
 					iHours = fAlarm / 3600;
 					iMinutes = (fAlarm / 60) % 60;
 					iSeconds = fAlarm % 60;
 
 					lcd_display_string (0, "SetfAlarm : hour");
-					lcd_display_string (POSITION_HOURS, "00:00:00");
-				break;
-				case BUTTON_HOURS_ALARM :
-					lcd_display_string (0, "SetfAlarm : min");
+					lcd_display_string (POSITION_HOURS, "  :  :  ");
 				break;
 				case BUTTON_MINUTES_ALARM :
-					lcd_display_string (0, "SetfAlarm : sec");
+					lcd_display_string (0, "SetfAlarm : min");
 				break;
 				case BUTTON_SECONDS_ALARM :
-					fAlarm = 3600 * iHours + 60 * iMinutes + iSeconds;
-
+					lcd_display_string (0, "SetfAlarm : sec");
+				break;
+				case BUTTON_CLOCK :
+					fAlarm = _get_time (iHours, iMinutes, iSeconds); // the alarm is now defined
 					lcd_display_string (0, CLOCK_NAME);
-					lcd_display_string (POSITION_HOURS, "00:00:00");
+					lcd_display_string (POSITION_HOURS, "  :  :  ");
 				break;
 				default:
 				break;
 			}
-			iState = (iState + 1) % 7;
-			fCurrentTime = 3600 * (long int)iHours + 60 * (long int)iMinutes + (long int)iSeconds;
+			fCurrentTime = _get_time (iHours, iMinutes, iSeconds);
 			display_ftime (fCurrentTime, 1); // display the time here in the interruption (we don't check the seconds)
 		}
 
@@ -151,8 +156,6 @@ void main (void)
 	INTCON2bits.INTEDG3 = 0;   
 	INTCON3bits.INT3IE  = 1;   
 	INTCON3bits.INT3IF  = 0;   
-
-
 
 	LCDInit ();
 	delay_ms (1000);
