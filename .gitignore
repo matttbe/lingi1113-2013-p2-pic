@@ -5,3 +5,8 @@
 *.lst
 *.cod
 /lcd.sym
+/Rapport/rapport.aux
+/Rapport/modeEmploi.log
+/Rapport/rapport.pdf
+/Rapport/rapport.synctex.gz
+/Rapport/rapport.log

@@ -4,9 +4,15 @@ Ce programme permet d'afficher l'heure sur l'écran LCD du PIC. Il permet égale
 
 \subsection*{Choix structurels}
 
+Nous avons décidé de travailler avec les interruptions machine. Deux sources peuvent provoquer une interruption :
+\begin{itemize}
+	\item le TIMER0 (et le TIMER1 pour le calibrage) : permet de compter le temps
+	\item le BUT1 : permet de changer l'heure et l'alarme 
+\end{itemize}
 
 \subsection*{Moyen de mesure du temps}
 
+Pour la mesure du temps, on sait que le TIMER1 provoque une interruption d'overflow toute les 2 secondes. Le programme à donc une première phase de calibrage pour calculer le nombre d'interruption provoquée par le TIMER0 durant 2 secondes. Ensuite, nous avons un compteur interne incrémenté à chaque fois que TIMER0 provoque une interruption. Lorsque ce compteur à atteint le seuil calculé lors du calibrage, on incrémente de 1 seconde le temps.
 
 \subsection*{Décision d'implémentation}
 
