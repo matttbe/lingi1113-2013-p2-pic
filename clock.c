@@ -20,7 +20,7 @@
 #define HIGH(a)    ((a>>8) & 0xFF)
 #define CLOCK_FREQ 25000000 // 25MHz
 #define EXEC_FREQ (CLOCK_FREQ / 4)  //4 clock cycles to execute 1 instruction
-#define INIT_TIMER0H 0x45
+#define INIT_TIMER0H 0x45 // 69 in decimals
 #define INIT_TIMER0L 0x00
 
 #define CLOCK_NAME "Tea Time Clock"
