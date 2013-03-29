@@ -13,15 +13,14 @@
 #include "lcd_utils.c"
 #include "strlcpy.c"
 
-#define __18CXX          //means "any pic18"
-#include <pic18fregs.h>  //defines the address corresponding to the symbolic
-                         //names of the sfr
-
+#define __18CXX // => pic18
+#include <pic18fregs.h>
 
 #define LOW(a)     (a & 0xFF)
 #define HIGH(a)    ((a>>8) & 0xFF)
-#define CLOCK_FREQ 25000000     // Fréquence modifiée pour correspondre à une seconde
-#define EXEC_FREQ (CLOCK_FREQ/4)  //4 clock cycles to execute 1 instruction
+#define CLOCK_FREQ 25000000 // 25MHz
+#define EXEC_FREQ (CLOCK_FREQ / 4)  //4 clock cycles to execute 1 instruction
+
 #define CLOCK_NAME "Tea Time Clock"
 
 #include "delay.c"
@@ -41,6 +40,7 @@ UINT32 fTime = 0, fAlarm = 0;
 UINT8 iHours = 0, iMinutes = 0, iSeconds = 0; // Réglage de l'heure de l'horloge et de l'fAlarme
 UINT8 iBip = 0;
 
+// high interruptions
 void high_isr (void) __interrupt 1
 {
 	if(INTCON3bits.INT1IF == 1 || INTCON3bits.INT3IF == 1)

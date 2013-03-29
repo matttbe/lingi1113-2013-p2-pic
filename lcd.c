@@ -3,6 +3,8 @@
  * 
  * Copyright 2013 UCLouvain / pole INGI
  *
+ * Based on test.c from testPic (on Foditic)
+ *
  * Authors:
  *   Matthieu Baerts <matthieu.baerts@student.uclouvain.be>
  *   Hélène Verhaeghe <helene.verhaeghe@student.uclouvain.be>
