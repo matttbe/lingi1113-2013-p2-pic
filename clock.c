@@ -45,6 +45,7 @@ void high_isr (void) __interrupt 1
 {
 	if(INTCON3bits.INT1IF == 1 || INTCON3bits.INT3IF == 1)
 	{
+		long int fCurrentTime;
 		if(BUTTON0_IO)
 		{ // change the clock/alarm
 			UINT8 bRefresh = 1;
@@ -68,8 +69,8 @@ void high_isr (void) __interrupt 1
 			}
 			if (bRefresh)
 			{
-				long int fCurrentTime = 3600 * (long int)iHours + 60 * (long int)iMinutes + (long int)iSeconds;
-				display_ftime (fCurrentTime, 1);
+				fCurrentTime = 3600 * (long int)iHours + 60 * (long int)iMinutes + (long int)iSeconds;
+				display_ftime (fCurrentTime, 1); // display the time here in the interruption (we don't check the seconds)
 			}
 
 			INTCON3bits.INT1IF = 0;   //clear INT1 flag
@@ -118,7 +119,8 @@ void high_isr (void) __interrupt 1
 				break;
 			}
 			iState = (iState + 1) % 7;
-			display_ftime (3600 * iHours + 60 * iMinutes + iSeconds, 1);
+			fCurrentTime = 3600 * (long int)iHours + 60 * (long int)iMinutes + (long int)iSeconds;
+			display_ftime (fCurrentTime, 1); // display the time here in the interruption (we don't check the seconds)
 		}
 
 		INTCON3bits.INT1IF  = 0;
