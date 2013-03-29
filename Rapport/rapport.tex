@@ -1,0 +1,67 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[francais]{babel}
+\usepackage{amsmath} % math
+\usepackage{amssymb} % math
+\usepackage{gensymb} % math
+\usepackage{graphicx} % images
+% \usepackage{qtree}    % dessiner des arbres %% => texlive-humanities
+\usepackage{url}
+\urlstyle{sf}
+\usepackage[usenames]{color}
+\usepackage[french]{varioref} % \vpageref
+\usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+
+\definecolor{codeBlue}{rgb}{0,0,1}
+\definecolor{webred}{rgb}{0.5,0,0}
+\definecolor{codeGreen}{rgb}{0,0.5,0}
+\definecolor{codeGrey}{rgb}{0.6,0.6,0.6}
+\definecolor{webdarkblue}{rgb}{0,0,0.4}
+\definecolor{webgreen}{rgb}{0,0.3,0}
+\definecolor{webblue}{rgb}{0,0,0.8}
+\definecolor{orange}{rgb}{0.7,0.1,0.1}
+
+\usepackage{caption}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{listings}		% Pour l'insersion de fichiers de codes sources.
+\lstset{
+	  language=Oz,
+	  flexiblecolumns=true,
+	  numbers=left,
+	  stepnumber=1,
+	  numberstyle=\ttfamily\tiny,
+	  keywordstyle=\ttfamily\textcolor{blue},
+	  stringstyle=\ttfamily\textcolor{red},
+	  commentstyle=\ttfamily\textcolor{green},
+	  breaklines=true,
+	  extendedchars=true,
+	  basicstyle=\ttfamily\scriptsize,
+	  showstringspaces=false
+	}
+
+%%%%%%%%%%%%%%%%%%%%
+
+\title{\texttt{Ingi 1113}: Projet sur machine nue \\ Rapport}
+\author{Groupe 21: Hélène \textsc{Verhaeghe} and Matthieu \textsc{Baerts}}
+	\date{\today}
+
+\begin{document}
+
+% A small report of about 2 pages, explaining the architecture and design of your project, along with the concurrency issues you faced and how you solved them.
+
+\maketitle
+% \tableofcontents
+
+
+\section{Mode d'emploi}
+\input{ModeEmploi.tex}
+
+\section{Instruction de compilation et d'installation}
+\input{Compil.tex}
+
+\section{Documentation du programmeur}
+\input{DocProgra.tex}
+
+\end{document}
