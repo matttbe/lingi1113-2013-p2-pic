@@ -1,21 +1,31 @@
-\subsection*{Spécifications}
+\subsection{Spécifications}
 
-Ce programme permet d'afficher l'heure sur l'écran LCD du PIC. Il permet également de changer l'heure à tout moment ainsi qu'une alarme (symbolisée par un clignotement de LED durant 30 secondes).
+Ce programme permet d'afficher l'heure sur l'écran \textit{LCD} du \textit{PIC}. Il permet également de changer l'heure à tout moment ainsi qu'une alarme (symbolisée par un clignotement de \textit{LED} durant 30 secondes).
 
-\subsection*{Choix structurels}
+\subsection{Choix structurels}\label{choix}
 
 Nous avons décidé de travailler avec les interruptions machine. Deux sources peuvent provoquer une interruption :
 \begin{itemize}
-	\item le TIMER0 (et le TIMER1 pour le calibrage) : permet de compter le temps
-	\item le BUT1 : permet de changer l'heure et l'alarme 
+	\item le \texttt{TIMER0} (et le \texttt{TIMER1} pour le calibrage) : permet de compter le temps
+	\item les boutons : permet de changer l'heure et l'alarme 
 \end{itemize}
 
-\subsection*{Moyen de mesure du temps}
+\subsection{Moyen de mesure du temps}
 
-Pour la mesure du temps, on sait que le TIMER1 provoque une interruption d'overflow toute les 2 secondes. Le programme à donc une première phase de calibrage pour calculer le nombre d'interruption provoquée par le TIMER0 durant 2 secondes. Ensuite, nous avons un compteur interne incrémenté à chaque fois que TIMER0 provoque une interruption. Lorsque ce compteur à atteint le seuil calculé lors du calibrage, on incrémente de 1 seconde le temps.
+Comme demandé, le programme contenu dans \texttt{clock.c} n'utilise pas le \texttt{TIMER1}. Pour la mesure du temps, nous savons que le \texttt{TIMER1} provoque une interruption d'\textit{overflow} toute les 2 secondes (un compteur est incrémenté à chaque tour d'horloge et lorsque ce compteur est à son maximum, une interruption est produite).
 
-\subsection*{Décision d'implémentation}
+Le programme contenu dans \texttt{freq.c} permet de calculer la valeur initiale du compteur afin que les interruptions d'\textit{overflow} provoquées par le TIMER0 aient lieu toutes les secondes précisément. Pour ce faire, le programme diminue ou augmente la valeur initiale du compteur du \texttt{TIMER0} en fonction des interruptions déjà survenues (il doit y avoir deux interruptions provoquées par le \texttt{TIMER0} par interruption provoquées par le \texttt{TIMER1}).\\
+L'écran sera actualisé avec la nouvelle valeur de base. (attention, la valeur affichée est en décimal et non en hexadécimal).
 
+\subsection{Décisions d'implémentation}
 
-\subsection*{Détails techniques}
+Comme déjà décrit au point \ref{choix}, nous avons décidé de travailler avec les interruptions machine.\\
 
+Toutes les secondes, une interruption est provoquée par le \texttt{TIMER0}. Durant cette interruption, un minimum de calculs est effectué: une seconde est ajoutée au compteur, une comparaison avec l'heure de l'alarme est opérée, un \textit{flag} est activé pour signaler la demande de rafraîchissement de l'écran et les compteurs sont réinitialisés.\\
+Dans la boucle principale (la \textit{mainloop}), on vérifie si l'écran doit être rafraîchit grâce à une variable et si c'est le cas, l'écran est actualisé depuis cet endroit afin d'éviter de faire des appels systèmes, bloquants et/ou demandant beaucoup de ressources dans une interruption.\\
+
+Concernant le réglage de l'heure, le compteur de l'heure n'est pas mis à jour pendant ce temps là. Le rafraîchissement se fait directement dans les interruptions provoquées par les boutons pour être certain que l'écran affiche la bonne valeur avant de passer à l'action suivante. D'un autre côté, il pourrait être aussi très simple d'actualiser l'écran dans la \textit{mainloop} si on veut donner la priorité au valeur par rapport à l'affichage à ce moment là.
+
+\subsection{Détails techniques}
+
+Nous avons décidé de séparer le code en plusieurs fichiers. Cependant, par facilité (et à cause d'un petit soucis provoqué par l'utilisation d'une version plus récente du compilateur \textit{sdcc}), les fichiers \texttt{.c} sont directement importés depuis le fichier \texttt{clock.c}. Ce n'est pas très joli mais c'est d'un autre côté plus propre de séparer toutes les fonctions en plusieurs fichiers.
