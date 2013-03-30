@@ -10,8 +10,10 @@ Nous avons décidé de travailler avec les interruptions machine. Deux sources p
 	\item le BUT1 : permet de changer l'heure et l'alarme 
 \end{itemize}
 
+Dans le cas du changement de menu, nous n'avions que deux boutons à notre disposition, c'est pourquoi, l'un (BUT1) sert à naviguer de page de menu en page de menu tandis que le deuxième (BUT2) sert à incrémenter les valeurs, celle-ci revenant à 0 après avoir atteint un seuil limite.
 
-%%
+Pour le temps, il nous était évident que nous devions travailler de cette manière puisque c'était ce qui nous était demandé.
+
 \subsection*{Moyen de mesure du temps}
 
 Pour la mesure du temps, on sait que le TIMER1 provoque une interruption d'overflow toute les 2 secondes. Le programme à donc une première phase de calibrage pour calculer le nombre d'interruption provoquée par le TIMER0 durant 2 secondes. Ensuite, nous avons un compteur interne incrémenté à chaque fois que TIMER0 provoque une interruption. Lorsque ce compteur à atteint le seuil calculé lors du calibrage, on incrémente de 1 seconde le temps.
