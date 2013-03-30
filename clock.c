@@ -205,7 +205,7 @@ void main (void)
 
 	while (1)
 	{
-		if (iState == 0 && bRefresh == 1)
+		if (bRefresh == 1 && iState == 0)
 		{
 			display_ftime(fTime, 0); // do not refresh the lcd in the interruption
 			bRefresh = 0;
