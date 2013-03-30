@@ -4,27 +4,27 @@ Ce programme permet d'afficher l'heure sur l'écran \textit{LCD} du \textit{PIC}
 
 \subsection{Choix structurels}\label{choix}
 
-Nous avons décidé de travailler avec les interruptions machine. Deux sources peuvent provoquer une interruption :
+Nous avons décidé de travailler avec les interruptions machine. Deux sources provoquant des interruptions ont été utilisées :
 \begin{itemize}
-	\item le \texttt{TIMER0} (et le \texttt{TIMER1} pour le calibrage) : permet de compter le temps
-	\item les boutons : permet de changer l'heure et l'alarme 
+	\item le \texttt{TIMER0} (et le \texttt{TIMER1} pour le calibrage) permet de compter le temps
+	\item les boutons (\texttt{BUT1} et \texttt{BUT2}) permettent de changer l'heure et l'alarme 
 \end{itemize}
 
 \subsection{Moyen de mesure du temps}
 
-Comme demandé, le programme contenu dans \texttt{clock.c} n'utilise pas le \texttt{TIMER1}. Pour la mesure du temps, nous savons que le \texttt{TIMER1} provoque une interruption d'\textit{overflow} toute les 2 secondes (un compteur est incrémenté à chaque tour d'horloge et lorsque ce compteur est à son maximum, une interruption est produite).
+Comme demandé, le programme contenu dans \texttt{clock.c} n'utilise pas le \texttt{TIMER1}. Pour la mesure du temps, nous savons que le \texttt{TIMER1} provoque une interruption d'\textit{overflow} toute les 2 secondes (tout comme le \texttt{TIMER0} un compteur est incrémenté à chaque tour d'horloge et, lorsque ce compteur est à son maximum, une interruption est produite).
 
-Le programme contenu dans \texttt{freq.c} permet de calculer la valeur initiale du compteur afin que les interruptions d'\textit{overflow} provoquées par le TIMER0 aient lieu toutes les secondes précisément. Pour ce faire, le programme diminue ou augmente la valeur initiale du compteur du \texttt{TIMER0} en fonction des interruptions déjà survenues (il doit y avoir deux interruptions provoquées par le \texttt{TIMER0} par interruption provoquées par le \texttt{TIMER1}).\\
+Le programme contenu dans \texttt{freq.c} permet de calculer la valeur initiale du compteur afin que les interruptions d'\textit{overflow} provoquées par le TIMER0 aient lieu toutes les secondes précisément. Pour ce faire, le programme diminue ou augmente la valeur initiale du compteur du \texttt{TIMER0} en fonction des interruptions déjà survenues (il doit y avoir deux interruptions provoquées par le \texttt{TIMER0} par interruption provoquée par le \texttt{TIMER1}).\\
 L'écran sera actualisé avec la nouvelle valeur de base. (attention, la valeur affichée est en décimal et non en hexadécimal).
 
 \subsection{Décisions d'implémentation}
 
 Comme déjà décrit au point \ref{choix}, nous avons décidé de travailler avec les interruptions machine.\\
 
-Toutes les secondes, une interruption est provoquée par le \texttt{TIMER0}. Durant cette interruption, un minimum de calculs est effectué: une seconde est ajoutée au compteur, une comparaison avec l'heure de l'alarme est opérée, un \textit{flag} est activé pour signaler la demande de rafraîchissement de l'écran et les compteurs sont réinitialisés.\\
+Toutes les secondes, une interruption est provoquée par le \texttt{TIMER0}. Durant cette interruption, un minimum de calculs est effectué: une unité est ajoutée à la variable de l'heure en secondes, une comparaison avec l'heure de l'alarme est opérée, un \textit{flag} est activé pour signaler la demande de rafraîchissement de l'écran et le compteur du \texttt{TIMER0} ainsi que le bit signalant l'\textit{overflow} de ce compteur sont réinitialisés.\\
 Dans la boucle principale (la \textit{mainloop}), on vérifie si l'écran doit être rafraîchit grâce à une variable et si c'est le cas, l'écran est actualisé depuis cet endroit afin d'éviter de faire des appels systèmes, bloquants et/ou demandant beaucoup de ressources dans une interruption.\\
 
-Concernant le réglage de l'heure, le compteur de l'heure n'est pas mis à jour pendant ce temps là. Le rafraîchissement se fait directement dans les interruptions provoquées par les boutons pour être certain que l'écran affiche la bonne valeur avant de passer à l'action suivante. D'un autre côté, il pourrait être aussi très simple d'actualiser l'écran dans la \textit{mainloop} si on veut donner la priorité au valeur par rapport à l'affichage à ce moment là.
+Concernant le réglage de l'heure, le compteur de l'heure n'est pas mis à jour pendant ce temps là. Le rafraîchissement se fait directement dans les interruptions provoquées par les boutons pour être certain que l'écran affiche la bonne valeur avant de passer à l'action suivante. D'un autre côté, il pourrait être aussi très simple d'actualiser l'écran dans la \textit{mainloop} si on veut donner la priorité aux valeurs par rapport à l'affichage à ce moment là (ou si on veut que l'heure continue).
 
 \subsection{Détails techniques}
 
