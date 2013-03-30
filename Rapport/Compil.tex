@@ -1,5 +1,5 @@
 
-\subsection*{Compilation}
+\subsection{Compilation}
 
 Un \textit{Makefile} se trouve à la racine du projet. Il suffit donc d'exécuter la commande suivante à la racine du projet :
 
@@ -7,10 +7,17 @@ Un \textit{Makefile} se trouve à la racine du projet. Il suffit donc d'exécute
 $ make clock
 \end{lstlisting}
 
-\subsection*{Installation sur le PIC}
+Pour compiler le programme de calibrage, il faut utiliser la commande suivante:
 
-Concernant la connexion au PIC, il faut raccorder celui-ci sur le port 3 du routeur et votre ordinateur sur le port 2 après avoir mis l'ensemble sous tension.
-Après que le PIC soit branché, exécuter les lignes suivantes dans le dossier contenant l'exécutable créé ("clock.hex").
+\begin{lstlisting}
+$ make freq
+\end{lstlisting}
+
+
+\subsection{Installation sur le \textit{PIC}}
+
+Concernant la connexion au \textit{PIC}, il faut raccorder celui-ci sur le port 3 du routeur et votre ordinateur sur le port 2 après avoir mis l'ensemble sous tension.
+Après que le \textit{PIC} soit branché, exécuter les lignes suivantes dans le dossier contenant l'exécutable créé (\texttt{clock.hex}).
 \begin{lstlisting}
 $ tftp 192.168.97.60
 $ tftp> binary
@@ -21,4 +28,3 @@ $ tftp> quit
 \end{lstlisting}
 
 Le programme démarre sur le PIC automatiquement\footnote{Pour plus d'informations à ce sujet, nous vous renvoyons vers la page dédiée sur Foditic: \url{http://foditic.org/LINGI1113_13/missions/picUnixE.php?cidReq=LINGI1113_13}}.
-
