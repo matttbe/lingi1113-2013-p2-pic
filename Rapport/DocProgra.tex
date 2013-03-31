@@ -14,7 +14,7 @@ Nous avons décidé de travailler avec les interruptions machine. Deux sources p
 
 Comme demandé, le programme contenu dans \texttt{clock.c} n'utilise pas le \texttt{TIMER1}. Pour la mesure du temps, nous savons que le \texttt{TIMER1} provoque une interruption d'\textit{overflow} toute les 2 secondes (tout comme le \texttt{TIMER0} un compteur est incrémenté à chaque tour d'horloge et, lorsque ce compteur est à son maximum, une interruption est produite).
 
-Le programme contenu dans \texttt{freq.c} permet de calculer la valeur initiale du compteur afin que les interruptions d'\textit{overflow} provoquées par le TIMER0 aient lieu toutes les secondes précisément. Pour ce faire, le programme diminue ou augmente la valeur initiale du compteur du \texttt{TIMER0} en fonction des interruptions déjà survenues (il doit y avoir deux interruptions provoquées par le \texttt{TIMER0} par interruption provoquée par le \texttt{TIMER1}).\\
+Le programme contenu dans \texttt{freq.c} permet de calculer la valeur initiale du compteur afin que les interruptions d'\textit{overflow} provoquées par le \texttt{TIMER0} aient lieu toutes les secondes précisément. Pour ce faire, le programme diminue ou augmente la valeur initiale du compteur du \texttt{TIMER0} en fonction des interruptions déjà survenues (il doit y avoir deux interruptions provoquées par le \texttt{TIMER0} par interruption provoquée par le \texttt{TIMER1}).\\
 L'écran sera actualisé avec la nouvelle valeur de base. (attention, la valeur affichée est en décimal et non en hexadécimal).
 
 \subsection{Décisions d'implémentation}
